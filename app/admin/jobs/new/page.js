@@ -54,13 +54,22 @@ export default function NewJobPage() {
           required
           className="border px-4 py-2 rounded"
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          {loading ? 'Posting...' : 'Post Job'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            {loading ? 'Posting...' : 'Post Job'}
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push('/admin/jobs')}
+            className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );
