@@ -1,62 +1,80 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '../../../lib/supabase/client';
 
 export default function PostJobPage() {
   const [title, setTitle] = useState('');
-  const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [location, setLocation] = useState('');
+  const [success, setSuccess] = useState(false);
+
+  const generateSlug = (text) =>
+    text.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const slug = generateSlug(title);
+
     const { error } = await supabase.from('jobs').insert([
-      { title, slug, description },
+      { title, slug, description, location }
     ]);
 
     if (error) {
-      console.error('Error posting job:', error.message || error.details || error);
+      console.error('Error posting job:', error);
+      alert('Something went wrong.');
     } else {
-      setSuccessMessage('✅ Job posted successfully!');
+      setSuccess(true);
       setTitle('');
-      setSlug('');
       setDescription('');
+      setLocation('');
     }
   };
 
   return (
-    <div className="p-10 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Post a New Job</h1>
-      {successMessage && <p className="mb-4 text-green-600">{successMessage}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Job Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="border px-4 py-2 w-full rounded"
-          required
-        />
-        <input
-          type="text"
-          placeholder="Slug (e.g. frontend-developer)"
-          value={slug}
-          onChange={(e) => setSlug(e.target.value)}
-          className="border px-4 py-2 w-full rounded"
-          required
-        />
-        <textarea
-          placeholder="Job Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="border px-4 py-2 w-full rounded h-40"
-          required
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
+    <div className="min-h-screen px-6 py-10">
+      <h1 className="text-2xl font-bold mb-6">Post a New Job</h1>
+
+      {success && (
+        <div className="mb-4 text-green-600 font-semibold">✅ Job posted successfully!</div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
+        <div>
+          <label className="block mb-1 font-medium">Job Title</label>
+          <input
+            type="text"
+            className="w-full border px-4 py-2 rounded"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 font-medium">Location</label>
+          <input
+            type="text"
+            className="w-full border px-4 py-2 rounded"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 font-medium">Description</label>
+          <textarea
+            className="w-full border px-4 py-2 rounded"
+            rows="5"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+        </div>
+
+        <button type="submit" className="bg-black text-white px-6 py-2 rounded">
           Post Job
         </button>
       </form>
