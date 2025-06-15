@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase/client.js';
+import { supabase } from '@/lib/supabase/client';
+
 
 export default function EditJobPage() {
   const router = useRouter();
