@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client.js';
 import CoverLetterButton from '@/app/components/CoverLetterButton';
 import SearchApplications from './SearchApplications';
 
