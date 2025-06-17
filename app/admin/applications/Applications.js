@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
-import CoverLetterButton from '@/app/components/CoverLetterButton';
+import CoverLetterButton from '@/components/ui/CoverLetterButton';
 import SearchApplications from './SearchApplications';
 
 export default function Applications() {
@@ -86,101 +86,67 @@ export default function Applications() {
     return 0;
   });
 
-  return (
-    <div style={{ padding: 40 }}>
-      <h1 className="text-2xl font-bold mb-4">Submitted Applications</h1>
-      <SearchApplications />
-
-      <div className="mb-4 flex gap-2">
-        <input
-          type="text"
-          placeholder="Filter by name, email, or job"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border px-4 py-2 rounded w-full"
-        />
-        <button
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-          onClick={handleExportCSV}
-        >
-          Export CSV
-        </button>
-      </div>
-
-      <table className="min-w-full table-auto border-collapse border border-gray-300 mt-4">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border px-4 py-2 cursor-pointer" onClick={() => handleSort('full_name')}>
-              Name {sortKey === 'full_name' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
-            </th>
-            <th className="border px-4 py-2">Email</th>
-            <th className="border px-4 py-2">Job</th>
-            <th className="border px-4 py-2">Resume</th>
-            <th className="border px-4 py-2">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.length === 0 ? (
-            <tr>
-              <td colSpan="5" className="text-center py-4 text-gray-500">
-                No applications submitted yet.
-              </td>
-            </tr>
-          ) : (
-            sorted.map((app) => (
-              <tr key={app.id}>
-                <td className="border px-4 py-2">{app.full_name}</td>
-                <td className="border px-4 py-2">{app.email}</td>
-                <td className="border px-4 py-2">{app.job_slug || 'Unknown'}</td>
-                <td className="border px-4 py-2 flex flex-col gap-2">
-                  <a
-                    href={app.resume_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline hover:text-blue-800"
-                  >
-                    View Resume
-                  </a>
-                  <CoverLetterButton coverLetter={app.cover_letter} />
-                  <select
-                    value={app.status || ''}
-                    onChange={async (e) => {
-                      const { error } = await supabase
-                        .from('job_applications')
-                        .update({ status: e.target.value })
-                        .eq('id', app.id);
-                      if (!error) app.status = e.target.value;
-                    }}
-                    className="mt-2 border rounded px-2 py-1"
-                  >
-                    <option value="">Select Status</option>
-                    <option value="New">New</option>
-                    <option value="Shortlisted">Shortlisted</option>
-                    <option value="Interviewed">Interviewed</option>
-                    <option value="Hired">Hired</option>
-                    <option value="Rejected">Rejected</option>
-                  </select>
-                  <textarea
-                    className="mt-2 border rounded px-2 py-1"
-                    defaultValue={app.notes || ''}
-                    placeholder="Add notes here..."
-                    onBlur={async (e) => {
-                      const { error } = await supabase
-                        .from('job_applications')
-                        .update({ notes: e.target.value })
-                        .eq('id', app.id);
-                      if (!error) app.notes = e.target.value;
-                    }}
-                  />
-                </td>
-                <td className="border px-4 py-2">
-                  {new Date(app.created_at).toLocaleString()}
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+  const handleStatusChange = async (id, newStatus) => {
+  setApplications((prev) =>
+    prev.map((app) =>
+      app.id === id ? { ...app, status: newStatus } : app
+    )
   );
+
+  await supabase
+    .from('applications')
+    .update({ status: newStatus })
+    .eq('id', id);
+};
+
+
+  return (
+  <div className="max-w-4xl mx-auto p-6">
+    <h1 className="text-2xl font-bold mb-6">Applications</h1>
+    
+    <div className="space-y-6">
+      {applications.map((app) => (
+        <div
+          key={app.id}
+          className="border rounded-lg bg-white shadow-sm p-6 flex flex-col md:flex-row justify-between gap-4"
+        >
+          <div>
+            <p className="font-semibold text-gray-800">
+              {app.name || 'No Name Provided'}
+            </p>
+            <p className="text-sm text-gray-600">{app.email}</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Applied on: {new Date(app.created_at).toLocaleDateString()}
+            </p>
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-3 text-sm">
+            <a
+              href={app.resume_url}
+              target="_blank"
+              className="text-blue-600 hover:underline"
+            >
+              View Resume
+            </a>
+
+            <CoverLetterButton coverLetter={app.cover_letter} />
+
+            <select
+              value={app.status || 'Pending'}
+              onChange={(e) => handleStatusChange(app.id, e.target.value)}
+              className="border border-gray-300 rounded px-2 py-1 bg-white text-sm"
+            >
+              <option value="Pending">Pending</option>
+              <option value="Shortlisted">Shortlisted</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+
+
 }
