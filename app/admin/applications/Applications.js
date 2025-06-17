@@ -101,49 +101,53 @@ export default function Applications() {
 
 
   return (
-  <div className="max-w-4xl mx-auto p-6">
-    <h1 className="text-2xl font-bold mb-6">Applications</h1>
+  <div className="max-w-5xl mx-auto px-6 py-10">
+    <h1 className="text-3xl font-bold mb-10">Applications</h1>
     
     <div className="space-y-6">
-      {applications.map((app) => (
-        <div
-          key={app.id}
-          className="border rounded-lg bg-white shadow-sm p-6 flex flex-col md:flex-row justify-between gap-4"
+  {applications.map((app) => (
+    <div
+      key={app.id}
+      className="bg-white border rounded-xl p-6 shadow-sm flex flex-col md:flex-row md:justify-between md:items-center gap-4"
+    >
+      {/* Left section: Name and email */}
+      <div>
+        <p className="font-semibold text-gray-800">
+          {app.name || 'No Name Provided'}
+        </p>
+        <p className="text-sm text-gray-600">{app.email}</p>
+        <p className="text-xs text-gray-400 mt-1">
+          Applied on: {new Date(app.created_at).toLocaleDateString()}
+        </p>
+      </div>
+
+      {/* Right section: Actions */}
+      <div className="flex flex-wrap gap-3 items-center">
+        <a
+          href={app.resume_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-blue-600 hover:underline"
         >
-          <div>
-            <p className="font-semibold text-gray-800">
-              {app.name || 'No Name Provided'}
-            </p>
-            <p className="text-sm text-gray-600">{app.email}</p>
-            <p className="text-xs text-gray-400 mt-1">
-              Applied on: {new Date(app.created_at).toLocaleDateString()}
-            </p>
-          </div>
+          View Resume
+        </a>
 
-          <div className="flex flex-col md:flex-row gap-3 text-sm">
-            <a
-              href={app.resume_url}
-              target="_blank"
-              className="text-blue-600 hover:underline"
-            >
-              View Resume
-            </a>
+        <CoverLetterButton coverLetter={app.cover_letter} />
 
-            <CoverLetterButton coverLetter={app.cover_letter} />
-
-            <select
-              value={app.status || 'Pending'}
-              onChange={(e) => handleStatusChange(app.id, e.target.value)}
-              className="border border-gray-300 rounded px-2 py-1 bg-white text-sm"
-            >
-              <option value="Pending">Pending</option>
-              <option value="Shortlisted">Shortlisted</option>
-              <option value="Rejected">Rejected</option>
-            </select>
-          </div>
-        </div>
-      ))}
+        <select
+          value={app.status || 'Pending'}
+          onChange={(e) => handleStatusChange(app.id, e.target.value)}
+          className="text-sm border border-gray-300 rounded px-2 py-1 bg-white"
+        >
+          <option value="Pending">Pending</option>
+          <option value="Shortlisted">Shortlisted</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
     </div>
+  ))}
+</div>
+
   </div>
 );
 
